@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <canvas id="canvas"></canvas>
+    </div>
+</body>
+<script>
+    window.onload = function () {
+        let canvas = document.getElementById("canvas");
+        let bgSnow = document.getElementById("bgSnow");
+        let ctx = canvas.getContext('2d');
+        let img = getImg(['./j1.png', './j2.png', './j3.png', './j4.png', './j5.png', './j6.png'])
+        canvas.width = document.body.clientWidth;
+        canvas.height = document.body.clientHeight;
+
+        let GetRandomNum = function (Min, Max) {
+            let Range = Max - Min;
+            let Rand = Math.random();
+            return (Min + Math.round(Rand * Range));
+        }
+        let snowArray = {}; //雪花对象
+        let snowIndex = 0; //标识符
+        let setting = {
+            num: 10, //数量
+            snowSize: 20, //大小
+            startX: Math.random() * canvas.width, //起始横坐标
+            startY: 0, //起始纵坐标
+            vy: 0.01
+        }
+        function getImg(ulist) {
+            let imgs = []
+            for (let i = 0; i < ulist.length; i++) {
+                let im = new Image()
+                im.src = ulist[i]
+                imgs.push(im)
+            }
+            return imgs
+        }
+        function snow() {
+            // 起始横坐标
+            this.x = Math.random() * canvas.width;
+            let c = parseInt(Math.random() * 6, 10);
+            // 起始纵坐标
+            this.y = setting.startY;
+            this.size = setting.snowSize + Math.random() * 10 - 10;
+
+            //横坐标偏移量
+            this.vx = Math.random() * 3 - 2; //偏移量
+            //纵坐标偏移量
+            this.vy = Math.random();
+            this.life = 0;
+            this.img = img[c];
+            this.maxLife = 100;
+            this.id = snowIndex;
+            //当前信息保存至对象snowArray
+            snowArray[snowIndex] = this;
+            snowIndex++;
+        }
+        snow.prototype.draw = function () {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += setting.vy;
+            this.life++;
+            //删除
+            if (this.y > canvas.height * 0.9 - 20) {
+                snowArray[this.id]
+            } else if (this.life >= this.maxLife) {
+                snowArray[this.id]
+            }
+            ctx.drawImage(this.img, this.x, this.y, this.size, this.size)
+        }
+        function render() {
+            for (let i = 0; i < setting.num; i++) {
+                if (Math.random() > 0.97) {
+                    new snow();
+                }
+            }
+            for (let i in snowArray) {
+                snowArray[i].draw();
+            }
+        }
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            render()
+            window.requestAnimationFrame(loop);
+        }
+        window.requestAnimationFrame(loop);
+    }
+</script>
+
+</html>
